@@ -121,7 +121,7 @@ export default function EmbryoPredictorPage() {
       setUploadSuccess(true)
       setIsProcessing(false)
     } catch (error) {
-      setValidationErrors(["Error processing file. Please check the file format and try again."])
+      setValidationErrors(["Ocorreu um erro ao processar o arquivo. Por favor, verifique o formato do arquivo e tente novamente."])
       setIsProcessing(false)
     }
   }
@@ -143,35 +143,35 @@ export default function EmbryoPredictorPage() {
     const errors: string[] = []
 
     if (dataRows.length === 0) {
-      errors.push("No data rows found in the file.")
+      errors.push("Nenhuma linha de dados encontrada no arquivo.")
       return errors
     }
 
-    // Check for empty rows
+    // Verifica se todas as linhas estão vazias
     const emptyRows = dataRows.filter(
-      (row, index) => !row || row.every((cell) => cell === null || cell === undefined || cell === ""),
+      (row) => !row || row.every((cell) => cell === null || cell === undefined || cell === ""),
     )
 
     if (emptyRows.length === dataRows.length) {
-      errors.push("All data rows appear to be empty.")
+      errors.push("Todas as linhas de dados estão vazias.")
     }
 
-    // Validate numeric columns
-    const numericColumns = ["t2", "t3", "t4", "t5", "t8", "tSC", "tSB", "tB"]
-    dataRows.forEach((row, rowIndex) => {
-      headers.forEach((header, colIndex) => {
-        if (numericColumns.includes(header) && row[colIndex] !== null && row[colIndex] !== undefined) {
-          const value = row[colIndex]
-          if (isNaN(Number(value))) {
-            errors.push(`Row ${rowIndex + 2}: "${header}" should be a number, got "${value}"`)
-          }
-        }
-      })
-    })
+    // // Valida se todos os valores são numéricos
+    // dataRows.forEach((row, rowIndex) => {
+    //   headers.forEach((header, colIndex) => {
+    //     const value = row[colIndex]
+    //     if (value !== null && value !== undefined && value !== "") {
+    //       if (isNaN(Number(value))) {
+    //         errors.push(`Linha ${rowIndex + 2}: A coluna "${header}" deve ser numérica, mas recebeu "${value}"`)
+    //       }
+    //     }
+    //   })
+    // })
 
-    // Limit validation errors to prevent overwhelming the user
+    // Limita o número de erros retornados
     return errors.slice(0, 10)
   }
+
 
   const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -205,18 +205,13 @@ export default function EmbryoPredictorPage() {
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-gray-200 to-gray-300 py-20 px-6 ">
         <div
-              className="absolute inset-0 bg-cover bg-center opacity-15 transform scale-x-110"
+              className="absolute inset-0 bg-cover bg-center opacity-15 transform"
               style={{
-                backgroundImage: "url('/images/azuleijo.jpg')",
+                backgroundImage: "url('/images/azuleijo.png')",
               }}
             ></div>
         
         <div className="max-w-4xl mx-auto text-center relative">
-          {/* <div className="absolute inset-0 flex items-center justify-center opacity-20">
-            <div className="w-64 h-64 bg-green-600 rounded-full opacity-30"></div>
-          </div> */}
-          
-
           <div className="relative z-10">
             <h1 className="text-5xl font-bold text-[#003366] mb-4">Ferramenta de Predição de Ploidia de Embriões</h1>
             <p className="text-xl text-[#003366] mb-8 max-w-2xl mx-auto">
@@ -232,7 +227,7 @@ export default function EmbryoPredictorPage() {
       {/* About Section */}
       <section id="about" className="py-16 px-6">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold mb-6">Sobre o Projeto</h2>
+          <h2 className="text-3xl font-bold mb-6 text-[#003366] ">Sobre o Projeto</h2>
           <p className="text-gray-700 text-lg leading-relaxed">
             Esta ferramenta utiliza algoritmos avançados de aprendizado de máquina para prever a ploidia do embrião com base em dados morfocinéticos. Desenvolvida por pesquisadores da Universidade de Brasília, ela visa melhorar as taxas de sucesso da fertilização in vitro (FIV), fornecendo aos médicos informações valiosas sobre a viabilidade do embrião. Nossa abordagem integra tecnologia de ponta com metodologia científica rigorosa para fornecer previsões precisas e confiáveis.
           </p>
@@ -247,14 +242,14 @@ export default function EmbryoPredictorPage() {
               <CardContent className="pt-6">
                 <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-gray-300">
                   <Image
-                    src="/images/sabrina-fundo.png"
-                    alt="Sabrina"
+                    src="/images/george.jpeg"
+                    alt="George"
                     width={128}
                     height={128}
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <h3 className="font-semibold text-lg">Prof. Dr. George Marcicano</h3>
+                <h3 className="font-semibold text-lg">Prof. Dr. George Marsicano </h3>
                 <p className="text-gray-600">Professor orientador da UnB</p>
               </CardContent>
             </Card>
@@ -295,7 +290,7 @@ export default function EmbryoPredictorPage() {
               <CardContent className="pt-6">
                 <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-gray-300">
                   <Image
-                    src="/images/maria.jpeg"
+                    src="/images/bruno.png"
                     alt="Dr. Bruno"
                     width={128}
                     height={128}
@@ -318,7 +313,7 @@ export default function EmbryoPredictorPage() {
             <CardContent className="p-6">
               <h3 className="text-xl font-semibold mb-4">Cabeçalhos de Coluna Obrigatórios</h3>
               <p className="text-sm text-gray-700 mb-4 font-mono bg-gray-100 p-3 rounded">
-                Idade, Estágio, Morfo, t2, t3, t4, t5, t8, tSC, tSB, tB, cc2 (t3-t2), cc3 (t5-t3), t5-t2, s2 (t4-t3), s3
+                ID, Idade, Estágio, KidScore, Morfo, t2, t3, t4, t5, t8, tSC, tSB, tB, cc2 (t3-t2), cc3 (t5-t3), t5-t2, s2 (t4-t3), s3
                 (t8-t5), tSC-t8, tB-tSB
               </p>
               <p className="text-gray-600">
@@ -355,14 +350,14 @@ export default function EmbryoPredictorPage() {
 
                 {isProcessing ? (
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Processing file...</h3>
+                    <h3 className="text-xl font-semibold mb-2">Processando Arquivo...</h3>
                     <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
                   </div>
                 ) : uploadSuccess ? (
                   <div>
-                    <h3 className="text-xl font-semibold mb-2 text-green-700">File uploaded successfully!</h3>
+                    <h3 className="text-xl font-semibold mb-2 text-green-700">Arquivo Enviado com Sucesso!</h3>
                     <p className="text-green-600 mb-4">{uploadedFile?.name}</p>
-                    <p className="text-sm text-gray-600">{fileData.length} rows processed</p>
+                    <p className="text-sm text-gray-600">{fileData.length} linhas processadas</p>
                   </div>
                 ) : (
                   <div>
@@ -398,7 +393,7 @@ export default function EmbryoPredictorPage() {
           {uploadSuccess && fileData.length > 0 && (
             <Card className="mb-8">
               <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-4">Data Preview</h3>
+                <h3 className="text-xl font-semibold mb-4">Prévia dos Dados</h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm border-collapse border border-gray-300">
                     <thead>
@@ -412,7 +407,7 @@ export default function EmbryoPredictorPage() {
                           ))}
                         {Object.keys(fileData[0]).length > 8 && (
                           <th className="border border-gray-300 px-3 py-2 text-left font-medium">
-                            ... +{Object.keys(fileData[0]).length - 8} more
+                            ... +{Object.keys(fileData[0]).length - 8} mais
                           </th>
                         )}
                       </tr>
@@ -435,13 +430,13 @@ export default function EmbryoPredictorPage() {
                     </tbody>
                   </table>
                   {fileData.length > 5 && (
-                    <p className="text-sm text-gray-600 mt-2">Showing first 5 rows of {fileData.length} total rows</p>
+                    <p className="text-sm text-gray-600 mt-2">Exibindo as primeiras 5 linhas de um total de {fileData.length} linhas de dados</p>
                   )}
                 </div>
 
                 <div className="mt-4 flex gap-4">
                   <Button className="bg-green-700 hover:bg-green-800" onClick={() => router.push("/results")}>
-                    Run Prediction Analysis
+                    Rodar Análise de Predição
                   </Button>
                   <Button
                     variant="outline"
@@ -452,7 +447,7 @@ export default function EmbryoPredictorPage() {
                       setValidationErrors([])
                     }}
                   >
-                    Upload New File
+                    Upload de um novo arquivo
                   </Button>
                 </div>
               </CardContent>
@@ -470,9 +465,13 @@ export default function EmbryoPredictorPage() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">Contato</h2>
           <p className="text-gray-700 text-lg">
-            Para perguntas e suporte, entre em contato conosco em{" "}
-            <a href="mailto:embryopredictor@unb.br" className="text-green-700 hover:underline">
-              email
+            Para perguntas e suporte, entre em contato conosco em {" "} 
+            <a href="sabrinacberno@gmail.com" className="text-green-700 hover:underline">
+              sabrinacberno@gmail.com
+            </a>
+            {" "}ou{" "} 
+            <a href="eduardaabritta@gmail.com" className="text-green-700 hover:underline">
+              eduardaabritta@gmail.com
             </a>
           </p>
         </div>

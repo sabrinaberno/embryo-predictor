@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Download, FileText } from "lucide-react"
 import Link from "next/link"
+import * as XLSX from "xlsx"
 
 interface AnalysisResult {
   embryoId: string
-  ploidyStatus: "Euploid" | "Aneuploid"
+  ploidyStatus: "Euploide" | "Aneuploide"
   confidenceScore: number
 }
 
@@ -21,11 +22,11 @@ export default function ResultsPage() {
     const timer = setTimeout(() => {
       // Mock results data - in a real app, this would come from the ML analysis
       const mockResults: AnalysisResult[] = [
-        { embryoId: "Embryo 1", ploidyStatus: "Euploid", confidenceScore: 95 },
-        { embryoId: "Embryo 2", ploidyStatus: "Aneuploid", confidenceScore: 88 },
-        { embryoId: "Embryo 3", ploidyStatus: "Euploid", confidenceScore: 92 },
-        { embryoId: "Embryo 4", ploidyStatus: "Aneuploid", confidenceScore: 75 },
-        { embryoId: "Embryo 5", ploidyStatus: "Aneuploid", confidenceScore: 98 },
+        { embryoId: "Embryo 1", ploidyStatus: "Euploide", confidenceScore: 95 },
+        { embryoId: "Embryo 2", ploidyStatus: "Aneuploide", confidenceScore: 88 },
+        { embryoId: "Embryo 3", ploidyStatus: "Euploide", confidenceScore: 92 },
+        { embryoId: "Embryo 4", ploidyStatus: "Aneuploide", confidenceScore: 75 },
+        { embryoId: "Embryo 5", ploidyStatus: "Aneuploide", confidenceScore: 98 },
       ]
       setResults(mockResults)
       setIsLoading(false)
@@ -35,51 +36,23 @@ export default function ResultsPage() {
   }, [])
 
   const handleExportResults = () => {
-    // Create CSV content
-    const csvContent = [
-      ["Embryo ID", "Ploidy Status", "Confidence Score"],
-      ...results.map((result) => [result.embryoId, result.ploidyStatus, `${result.confidenceScore}%`]),
-    ]
-      .map((row) => row.join(","))
-      .join("\n")
+      const ws = XLSX.utils.json_to_sheet(results.map((r) => ({
+        "Embryo ID": r.embryoId,
+        "Previsão de Ploidia": r.ploidyStatus,
+        "Nível de Confiança (%)": r.confidenceScore,
+      })))
 
-    // Create and download file
-    const blob = new Blob([csvContent], { type: "text/xlsx" })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "embryo_ploidy_results.xlsx"
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
-  }
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Resultados")
 
-  const euploidCount = results.filter((r) => r.ploidyStatus === "Euploid").length
-  const aneuploidCount = results.filter((r) => r.ploidyStatus === "Aneuploid").length
+      XLSX.writeFile(wb, "embryo_ploidy_results.xlsx")
+    }
+
+  const euploidCount = results.filter((r) => r.ploidyStatus === "Euploide").length
+  const aneuploidCount = results.filter((r) => r.ploidyStatus === "Aneuploide").length
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b px-6 py-4">
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <div className="flex items-center gap-2">
-            <img
-            src="/images/feto.png"
-            alt="Ícone de embrião"
-            className="w-6 h-6 object-contain"
-          />
-            <span className="font-semibold text-lg">Embryo Predict</span>
-          </div>
-          <Link href="/">
-            <Button variant="outline" className="flex items-center gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Back to Upload
-            </Button>
-          </Link>
-        </div>
-      </header>
-
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 border-b">
         <div className="flex items-center gap-2">
@@ -91,11 +64,9 @@ export default function ResultsPage() {
           <span className="font-semibold text-lg">Preditor de Embriões</span>
         </div>
         <nav className="flex gap-6 items-center">
-          <a href="#about" className="text-gray-600 hover:text-gray-900">
-            Sobre
-          </a>
-          <a href="#upload" className="bg-green-100 text-green-800 px-4 py-2 rounded-lg hover:bg-green-200">
-            Carregar Dados
+          <ArrowLeft className="w-4 h-4" />
+          <a href="/" className="text-gray-600 hover:text-gray-900">
+            Voltar para o Upload
           </a>
         </nav>
       </header>
@@ -103,8 +74,8 @@ export default function ResultsPage() {
       <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Title Section */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Ploidy Analysis Results</h1>
-          <p className="text-gray-600 text-lg">Review the ploidy status for each embryo based on your uploaded data.</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Resultados da Análise de Ploidia</h1>
+          <p className="text-gray-600 text-lg">Confira a previsão de ploidia de cada embrião com base nos dados enviados.</p>
         </div>
 
         {isLoading ? (
@@ -112,9 +83,9 @@ export default function ResultsPage() {
           <Card>
             <CardContent className="p-12 text-center">
               <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <h3 className="text-xl font-semibold mb-2">Analyzing Your Data</h3>
+              <h3 className="text-xl font-semibold mb-2">Analisando Seus Dados</h3>
               <p className="text-gray-600">
-                Our AI model is processing your embryo data. This may take a few moments...
+                Nosso modelo de IA está processando os dados dos embriões. Isso pode levar alguns instantes...
               </p>
             </CardContent>
           </Card>
@@ -125,19 +96,19 @@ export default function ResultsPage() {
               <Card>
                 <CardContent className="p-6 text-center">
                   <div className="text-3xl font-bold text-gray-900 mb-2">{results.length}</div>
-                  <div className="text-gray-600">Total Embryos</div>
+                  <div className="text-gray-600">Total de embriões</div>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-6 text-center">
                   <div className="text-3xl font-bold text-green-600 mb-2">{euploidCount}</div>
-                  <div className="text-gray-600">Euploid</div>
+                  <div className="text-gray-600">Euploide</div>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-6 text-center">
                   <div className="text-3xl font-bold text-red-600 mb-2">{aneuploidCount}</div>
-                  <div className="text-gray-600">Aneuploid</div>
+                  <div className="text-gray-600">Aneuploide</div>
                 </CardContent>
               </Card>
             </div>
@@ -150,8 +121,8 @@ export default function ResultsPage() {
                     <thead className="bg-gray-50 border-b">
                       <tr>
                         <th className="text-left py-4 px-6 font-semibold text-gray-900">Embryo ID</th>
-                        <th className="text-left py-4 px-6 font-semibold text-gray-900">Ploidy Status</th>
-                        <th className="text-left py-4 px-6 font-semibold text-gray-900">Confidence Score</th>
+                        <th className="text-left py-4 px-6 font-semibold text-gray-900">Previsão de Ploidia</th>
+                        <th className="text-left py-4 px-6 font-semibold text-gray-900">Nível de Confiança</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -161,7 +132,7 @@ export default function ResultsPage() {
                           <td className="py-4 px-6">
                             <span
                               className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                                result.ploidyStatus === "Euploid"
+                                result.ploidyStatus === "Euploide"
                                   ? "bg-green-100 text-green-800"
                                   : "bg-red-100 text-red-800"
                               }`}
@@ -182,29 +153,29 @@ export default function ResultsPage() {
             <div className="flex flex-wrap gap-4">
               <Button onClick={handleExportResults} className="flex items-center gap-2 bg-green-700 hover:bg-green-800">
                 <Download className="w-4 h-4" />
-                Export Results
+                Exportar Resultados
               </Button>
               <Link href="/">
-                <Button variant="outline">Analyze New Data</Button>
+                <Button variant="outline">Analisar novos dados</Button>
               </Link>
             </div>
 
             {/* Additional Information */}
             <Card className="mt-8">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-3">Understanding Your Results</h3>
+                <h3 className="text-lg font-semibold mb-3">Entendendo Seus Resultados</h3>
                 <div className="space-y-3 text-gray-700">
                   <div>
-                    <strong className="text-green-700">Euploid:</strong> Embryos with the correct number of chromosomes,
-                    indicating normal genetic content and higher viability potential.
+                    <strong className="text-green-700">Euploide:</strong> Embriões com o número correto de cromossomos,
+                    indicando um conteúdo genético normal e maior potencial de viabilidade.
                   </div>
                   <div>
-                    <strong className="text-red-700">Aneuploid:</strong> Embryos with abnormal chromosome numbers, which
-                    may indicate lower viability or genetic abnormalities.
+                    <strong className="text-red-700">Aneuploide:</strong> Embriões com número anormal de cromossomos, o que
+                    pode indicar menor viabilidade ou anomalias genéticas.
                   </div>
                   <div>
-                    <strong>Confidence Score:</strong> The AI model's confidence level in the prediction, with higher
-                    percentages indicating greater certainty in the classification.
+                    <strong> Nível de Confiança:</strong> Nível de confiança do modelo de IA na previsão, sendo que
+                    percentuais mais altos indicam maior certeza na classificação.
                   </div>
                 </div>
               </CardContent>
