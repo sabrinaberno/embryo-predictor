@@ -18,10 +18,10 @@ def classificar_morfo(valor):
 def preprocess_planilha(df: pd.DataFrame) -> pd.DataFrame:
     # Substitui valores da coluna 'Ploidia' se existir (para treino, mas pode ser ignorado)
     if 'Ploidia' in df.columns:
-        df['Ploidia'] = df['Ploidia'].replace({'Euplóide': 0, 'Aneuplóide': 1})
+        df['Ploidia'] = df['Ploidia'].replace({'Euplóide': 1, 'Aneuplóide': 0})
 
     # Remove a letra "D" da coluna Estágio e converte para numérico
-    df['Estágio'] = df['Estágio'].str.replace("D", "", regex=False)
+    df['Estágio'] = df['Estágio'].astype(str).str.replace("D", "", regex=False)
     df['Estágio'] = pd.to_numeric(df['Estágio'], errors='coerce')
 
     # Aplica classificação da Morfo
@@ -38,4 +38,3 @@ if __name__ == "__main__":
     df_numeric = preprocess_planilha(df)
     output_file = "PlanilhaNumerica.xlsx"
     df_numeric.to_excel(output_file, index=False)
-    print(f"Planilha somente com dados numéricos salva como: {output_file}")
