@@ -12,8 +12,10 @@ def rodar_predicao(df: pd.DataFrame):
     modelo = joblib.load("backend/melhor_modelo_mlp_20250610_113659.pkl")
     scaler = joblib.load("backend/scaler_mlp_20250610_113659.pkl")
 
-    X = df.drop(columns=["Ploidia"], errors="ignore")
-    y_true = df["Ploidia"] if "Ploidia" in df.columns else None
+    X = df.drop(columns=["Ploidia"], errors="ignore").copy()
+    if "embryoId" in X.columns:
+        X.drop(columns=["embryoId"], inplace=True)
+    y_true = df["Ploidia"]
 
     colunas_treinadas = scaler.feature_names_in_
     for col in colunas_treinadas:
@@ -44,46 +46,7 @@ def rodar_predicao(df: pd.DataFrame):
     df["Classe_Prevista"] = classes_preditas
     df["Prob_Euploidia_LIME"] = prob_euploidia
 
-    if y_true is not None:
-        prob_raw = modelo.predict_proba(X_scaled)[:, 1]
-        acc = accuracy_score(y_true, classes_preditas)
-        auc = roc_auc_score(y_true, prob_raw)
-
-        cm = confusion_matrix(y_true, classes_preditas)
-        tn, fp, fn, tp = cm.ravel()
-        recall_euploide = tp / (tp + fn) if (tp + fn) > 0 else 0
-        recall_aneuploide = tn / (tn + fp) if (tn + fp) > 0 else 0
-
-        print("\n=== MÉTRICAS DE DESEMPENHO ===")
-        print(f"Acurácia: {acc:.3f}")
-        print(f"AUC (baseado na sigmoid): {auc:.3f}")
-        print(f"Recall Euploide (Sensibilidade): {recall_euploide:.3f}")
-        print(f"Recall Aneuploide (Especificidade): {recall_aneuploide:.3f}")
-        print("\n=== Classification Report ===")
-        print(classification_report(y_true, classes_preditas))
-
-        plt.figure(figsize=(5, 4))
-        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
-                    xticklabels=["Aneuploide (0)", "Euploide (1)"],
-                    yticklabels=["Aneuploide (0)", "Euploide (1)"])
-        plt.xlabel("Predito")
-        plt.ylabel("Real")
-        plt.title("Matriz de Confusão")
-        plt.tight_layout()
-        plt.show()
-
-        fpr, tpr, thresholds = roc_curve(y_true, prob_raw)
-        plt.figure()
-        plt.plot(fpr, tpr, label=f"ROC Curve (AUC = {auc:.2f})")
-        plt.plot([0, 1], [0, 1], linestyle='--', color='gray')
-        plt.xlabel("Falso Positivo (1 - Especificidade)")
-        plt.ylabel("Verdadeiro Positivo (Sensibilidade)")
-        plt.title("Curva ROC")
-        plt.legend()
-        plt.grid(True)
-        plt.tight_layout()
-        plt.show()
-
+    
     output_file = "Planilha_Com_LIME_Porcentagem.xlsx"
     df.to_excel(output_file, index=False)
 
@@ -91,9 +54,10 @@ def rodar_predicao(df: pd.DataFrame):
     
     # Retorna a lista com resultados para o frontend ou API
     results_list = []
-    for _, row in df.iterrows():
+    for idx, row in df.iterrows():
+        embryo_id = row["embryoId"] if "embryoId" in df.columns else idx + 1  # começa do 1
         results_list.append({
-            "embryoId": int(row.get("embryoId", -1)),
+            "embryoId": int(embryo_id),
             "ploidyStatus": "Euploide" if row["Classe_Prevista"] == 0 else "Aneuploide",
             "confidenceScore": row["Prob_Euploidia_LIME"]
         })

@@ -25,7 +25,7 @@ export default function ResultsPage() {
         const converted: AnalysisResult[] = parsed.map((item) => ({
           embryoId: item.embryoId, // aqui mantemos como número
           ploidyStatus: item.ploidyStatus === "Euploide" ? "Euploide" : "Aneuploide",
-          confidenceScore: Math.round((item.confidenceScore ?? 0) * 100),
+          confidenceScore: item.confidenceScore ?? 0,
         }))
         setResults(converted)
       } catch (e) {
