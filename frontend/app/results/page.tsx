@@ -8,7 +8,7 @@ import Link from "next/link"
 import * as XLSX from "xlsx"
 
 interface AnalysisResult {
-  embryoId: string
+  embryoId: number
   ploidyStatus: "Euploide" | "Aneuploide"
   confidenceScore: number
 }
@@ -17,23 +17,24 @@ export default function ResultsPage() {
   const [results, setResults] = useState<AnalysisResult[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // Simulate loading and generating results
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // Mock results data - in a real app, this would come from the ML analysis
-      const mockResults: AnalysisResult[] = [
-        { embryoId: "Embryo 1", ploidyStatus: "Euploide", confidenceScore: 95 },
-        { embryoId: "Embryo 2", ploidyStatus: "Aneuploide", confidenceScore: 88 },
-        { embryoId: "Embryo 3", ploidyStatus: "Euploide", confidenceScore: 92 },
-        { embryoId: "Embryo 4", ploidyStatus: "Aneuploide", confidenceScore: 75 },
-        { embryoId: "Embryo 5", ploidyStatus: "Aneuploide", confidenceScore: 98 },
-      ]
-      setResults(mockResults)
-      setIsLoading(false)
-    }, 2000)
-
-    return () => clearTimeout(timer)
+    const storedResults = localStorage.getItem("embryoResults")
+    if (storedResults) {
+      try {
+        const parsed: any[] = JSON.parse(storedResults)
+        const converted: AnalysisResult[] = parsed.map((item) => ({
+          embryoId: item.embryoId, // aqui mantemos como número
+          ploidyStatus: item.ploidyStatus === "Euploide" ? "Euploide" : "Aneuploide",
+          confidenceScore: Math.round((item.confidenceScore ?? 0) * 100),
+        }))
+        setResults(converted)
+      } catch (e) {
+        console.error("Erro ao ler os resultados salvos:", e)
+      }
+    }
+    setIsLoading(false)
   }, [])
+
 
   const handleExportResults = () => {
       const ws = XLSX.utils.json_to_sheet(results.map((r) => ({
@@ -128,7 +129,7 @@ export default function ResultsPage() {
                     <tbody>
                       {results.map((result, index) => (
                         <tr key={result.embryoId} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                          <td className="py-4 px-6 font-medium text-gray-900">{result.embryoId}</td>
+                          <td className="py-4 px-6 font-medium text-gray-900">Embryo {result.embryoId}</td>
                           <td className="py-4 px-6">
                             <span
                               className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${

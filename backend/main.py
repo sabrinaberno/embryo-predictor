@@ -15,8 +15,8 @@ app.add_middleware(
 )
 
 # Carregar modelo e scaler
-modelo = joblib.load("melhor_modelo_mlp_20250610_113659.pkl")
-scaler = joblib.load("scaler_mlp_20250610_113659.pkl")
+modelo = joblib.load("backend/melhor_modelo_mlp_20250610_113659.pkl")
+scaler = joblib.load("backend/scaler_mlp_20250610_113659.pkl")
 colunas_treinadas = scaler.feature_names_in_
 
 def classificar_morfo(valor):

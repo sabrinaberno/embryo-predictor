@@ -25,3 +25,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Ambiente virtual
+venv/
+.env/
+__pycache__/
+*.py[cod]
+
+# Arquivos de configuração do sistema
+*.swp
+*.swo
+*.DS_Store
+
+# Logs e arquivos temporários
+*.log

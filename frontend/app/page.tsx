@@ -41,6 +41,12 @@ export default function EmbryoPredictorPage() {
     "tB-tSB",
   ]
 
+  type AnalysisResult = {
+    embryoId: number
+    ploidyStatus: string
+    confidenceScore: number
+  }
+
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -155,23 +161,8 @@ export default function EmbryoPredictorPage() {
     if (emptyRows.length === dataRows.length) {
       errors.push("Todas as linhas de dados estão vazias.")
     }
-
-    // // Valida se todos os valores são numéricos
-    // dataRows.forEach((row, rowIndex) => {
-    //   headers.forEach((header, colIndex) => {
-    //     const value = row[colIndex]
-    //     if (value !== null && value !== undefined && value !== "") {
-    //       if (isNaN(Number(value))) {
-    //         errors.push(`Linha ${rowIndex + 2}: A coluna "${header}" deve ser numérica, mas recebeu "${value}"`)
-    //       }
-    //     }
-    //   })
-    // })
-
-    // Limita o número de erros retornados
     return errors.slice(0, 10)
   }
-
 
   const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -179,6 +170,33 @@ export default function EmbryoPredictorPage() {
       await processFile(file)
     }
   }
+
+  const sendToAPI = async (file: File): Promise<AnalysisResult[]> => {
+  const formData = new FormData()
+  formData.append("file", file)
+
+  const res = await fetch("http://localhost:8001/predict", {
+    method: "POST",
+    body: formData,
+  })
+
+  if (!res.ok) {
+    const errorText = await res.text()
+    console.error("Erro da API:", errorText)
+    throw new Error("Erro ao enviar a planilha para a API")
+  }
+
+  const data = await res.json()
+
+  if (!Array.isArray(data.results)) {
+    console.error("Formato de resposta inesperado:", data)
+    throw new Error("A API não retornou uma lista de resultados.")
+  }
+
+  return data.results as AnalysisResult[]
+}
+
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -435,7 +453,23 @@ export default function EmbryoPredictorPage() {
                 </div>
 
                 <div className="mt-4 flex gap-4">
-                  <Button className="bg-green-700 hover:bg-green-800" onClick={() => router.push("/results")}>
+                  <Button
+                    className="bg-green-700 hover:bg-green-800"
+                    onClick={async () => {
+                      if (!uploadedFile) return
+                      setIsProcessing(true)
+                      try {
+                        const apiResults = await sendToAPI(uploadedFile)
+                        localStorage.setItem("embryoResults", JSON.stringify(apiResults))
+                        router.push("/results")
+                      } catch (error) {
+                        console.error(error)
+                        alert("Erro ao processar os dados. Verifique sua planilha.")
+                      } finally {
+                        setIsProcessing(false)
+                      }
+                    }}
+                  >
                     Rodar Análise de Predição
                   </Button>
                   <Button
