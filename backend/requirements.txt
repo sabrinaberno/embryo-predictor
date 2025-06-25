@@ -4,3 +4,6 @@ pandas
 openpyxl
 joblib
 scikit-learn
+matplotlib
+lime
+seaborn
