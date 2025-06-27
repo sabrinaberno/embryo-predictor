@@ -5,8 +5,10 @@ import numpy as np
 from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 
 def rodar_predicao(df: pd.DataFrame):
-    mlp = joblib.load("backend/melhor_modelo_mlp_20250610_113659.pkl")
-    scaler = joblib.load("backend/scaler_mlp_20250610_113659.pkl")
+    # mlp = joblib.load("backend/melhor_modelo_mlp_20250610_113659.pkl")
+    # scaler = joblib.load("backend/scaler_mlp_20250610_113659.pkl")
+    mlp = joblib.load("backend/mlp_model.pkl")
+    scaler = joblib.load("backend/scaler.pkl")
 
     # Verificar se tem coluna Ploidia
     tem_rotulo = "Ploidia" in df.columns

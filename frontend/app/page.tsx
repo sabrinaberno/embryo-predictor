@@ -87,10 +87,11 @@ export default function EmbryoPredictorPage() {
       const workbook = XLSX.read(arrayBuffer, { type: "array" })
       const sheetName = workbook.SheetNames[0]
       const worksheet = workbook.Sheets[sheetName]
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as (string | number | null)[][]
 
-      if (jsonData.length === 0) {
+      if (!jsonData || jsonData.length === 0) {
         setValidationErrors(["O arquivo está vazio."])
+        setUploadSuccess(false)
         setIsProcessing(false)
         return
       }
@@ -102,6 +103,7 @@ export default function EmbryoPredictorPage() {
       const errors = validateHeaders(headers)
       if (errors.length > 0) {
         setValidationErrors(errors)
+        setUploadSuccess(false)
         setIsProcessing(false)
         return
       }
@@ -110,15 +112,16 @@ export default function EmbryoPredictorPage() {
       const dataValidationErrors = validateData(dataRows, headers)
       if (dataValidationErrors.length > 0) {
         setValidationErrors(dataValidationErrors)
+        setUploadSuccess(false)
         setIsProcessing(false)
         return
       }
 
       // Convert to objects for easier handling
-      const processedData = dataRows.map((row: any[]) => {
+      const processedData = dataRows.map((row: any[] = []) => {
         const obj: any = {}
         headers.forEach((header, index) => {
-          obj[header] = row[index]
+          obj[header] = row?.[index] ?? ""
         })
         return obj
       })
@@ -126,8 +129,12 @@ export default function EmbryoPredictorPage() {
       setFileData(processedData)
       setUploadSuccess(true)
       setIsProcessing(false)
-    } catch (error) {
+
+    } catch (error: any) {
+
+      console.error("Erro inesperado ao processar o arquivo:", error)
       setValidationErrors(["Ocorreu um erro ao processar o arquivo. Por favor, verifique o formato do arquivo e tente novamente."])
+      setUploadSuccess(false)
       setIsProcessing(false)
     }
   }
@@ -161,7 +168,26 @@ export default function EmbryoPredictorPage() {
     if (emptyRows.length === dataRows.length) {
       errors.push("Todas as linhas de dados estão vazias.")
     }
-    return errors.slice(0, 10)
+
+    dataRows.forEach((row, rowIndex) => {
+      for (let i = 0; i < headers.length; i++) {
+        if (row[i] === undefined || row[i] === null || row[i] === "") {
+          errors.push(`A célula da coluna "${headers[i]}" na linha ${rowIndex + 2} está vazia.`)
+        }
+      }
+    })
+
+
+    dataRows.forEach((row, rowIndex) => {
+      const hasAnyValue = row.some((cell) => cell !== null && cell !== undefined && cell !== "")
+      const hasAnyBlank = row.some((cell) => cell === null || cell === undefined || cell === "")
+
+      if (hasAnyValue && hasAnyBlank) {
+        errors.push(`A linha ${rowIndex + 2} contém campos em branco. A planilha não pode conter valores em branco.`)
+      }
+    })
+
+    return errors
   }
 
   const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -247,7 +273,7 @@ export default function EmbryoPredictorPage() {
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold mb-6 text-[#003366] ">Sobre o Projeto</h2>
           <p className="text-gray-700 text-lg leading-relaxed">
-            Esta ferramenta utiliza algoritmos avançados de aprendizado de máquina para prever a ploidia do embrião com base em dados morfocinéticos. Desenvolvida por pesquisadores da Universidade de Brasília, ela visa melhorar as taxas de sucesso da fertilização in vitro (FIV), fornecendo aos médicos informações valiosas sobre a viabilidade do embrião. Nossa abordagem integra tecnologia de ponta com metodologia científica rigorosa para fornecer previsões precisas e confiáveis.
+            Esta ferramenta utiliza algoritmos avançados de inteligência artificial para prever a ploidia do embrião com uma precisão superior a 88%, com base em dados morfocinéticos e morfológicos. Desenvolvida por pesquisadoras da Universidade de Brasília, ela auxilia na seleção dos embriões com maior potencial de implantação, aumentando as taxas de sucesso da fertilização in vitro (FIV). Além de classificar o embrião como euploide ou aneuploide, nossa solução oferece a porcentagem dessa predição, trazendo maior segurança e precisão às decisões clínicas, reduzindo custos, otimizando os resultados da medicina reprodutiva e sendo uma alternativa menos invasiva ao PGT-A.
           </p>
         </div>
       </section>
@@ -331,7 +357,7 @@ export default function EmbryoPredictorPage() {
             <CardContent className="p-6">
               <h3 className="text-xl font-semibold mb-4">Cabeçalhos de Coluna Obrigatórios</h3>
               <p className="text-sm text-gray-700 mb-4 font-mono bg-gray-100 p-3 rounded">
-                ID, Idade, Estágio, KidScore, Morfo, t2, t3, t4, t5, t8, tSC, tSB, tB, cc2 (t3-t2), cc3 (t5-t3), t5-t2, s2 (t4-t3), s3
+                ID, Idade, Estágio, Kidscore, Morfo, t2, t3, t4, t5, t8, tSC, tSB, tB, cc2 (t3-t2), cc3 (t5-t3), t5-t2, s2 (t4-t3), s3
                 (t8-t5), tSC-t8, tB-tSB
               </p>
               <p className="text-gray-600">

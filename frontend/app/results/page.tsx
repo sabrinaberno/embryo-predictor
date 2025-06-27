@@ -40,7 +40,7 @@ export default function ResultsPage() {
       const ws = XLSX.utils.json_to_sheet(results.map((r) => ({
         "Embryo ID": r.embryoId,
         "Previsão de Ploidia": r.ploidyStatus,
-        "Nível de Confiança (%)": r.confidenceScore,
+        "Probibilidade de Euploidia (%)": r.confidenceScore,
       })))
 
       const wb = XLSX.utils.book_new()
@@ -123,7 +123,7 @@ export default function ResultsPage() {
                       <tr>
                         <th className="text-left py-4 px-6 font-semibold text-gray-900">Embryo ID</th>
                         <th className="text-left py-4 px-6 font-semibold text-gray-900">Previsão de Ploidia</th>
-                        <th className="text-left py-4 px-6 font-semibold text-gray-900">Nível de Confiança</th>
+                        <th className="text-left py-4 px-6 font-semibold text-gray-900">Probabilidade de Euploidia (%):</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -175,8 +175,7 @@ export default function ResultsPage() {
                     pode indicar menor viabilidade ou anomalias genéticas.
                   </div>
                   <div>
-                    <strong> Nível de Confiança:</strong> Nível de confiança do modelo de IA na previsão, sendo que
-                    percentuais mais altos indicam maior certeza na classificação.
+                    <strong>Probabilidade de Euploidia (%):</strong> Este valor indica a probabilidade estimada, fornecida pelo modelo de inteligência artificial, de que o embrião seja euploide. Embriões com probabilidade acima de 55% são classificados como euploides, enquanto aqueles com probabilidade abaixo de 55% são considerados aneuploides. Esta estimativa é calculada por meio de uma rede neural MLP treinada com dados morfocinéticos e representa uma interpretação quantitativa da viabilidade genética do embrião.
                   </div>
                 </div>
               </CardContent>
