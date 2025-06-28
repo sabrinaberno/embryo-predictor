@@ -109,13 +109,13 @@ export default function EmbryoPredictorPage() {
       }
 
       // Validate data
-      const dataValidationErrors = validateData(dataRows, headers)
-      if (dataValidationErrors.length > 0) {
-        setValidationErrors(dataValidationErrors)
-        setUploadSuccess(false)
-        setIsProcessing(false)
-        return
-      }
+      // const dataValidationErrors = validateData(dataRows, headers)
+      // if (dataValidationErrors.length > 0) {
+      //   setValidationErrors(dataValidationErrors)
+      //   setUploadSuccess(false)
+      //   setIsProcessing(false)
+      //   return
+      // }
 
       // Convert to objects for easier handling
       const processedData = dataRows.map((row: any[] = []) => {
@@ -152,43 +152,43 @@ export default function EmbryoPredictorPage() {
     return errors
   }
 
-  const validateData = (dataRows: any[][], headers: string[]): string[] => {
-    const errors: string[] = []
+  // const validateData = (dataRows: any[][], headers: string[]): string[] => {
+  //   const errors: string[] = []
 
-    if (dataRows.length === 0) {
-      errors.push("Nenhuma linha de dados encontrada no arquivo.")
-      return errors
-    }
+  //   if (dataRows.length === 0) {
+  //     errors.push("Nenhuma linha de dados encontrada no arquivo.")
+  //     return errors
+  //   }
 
-    // Verifica se todas as linhas estão vazias
-    const emptyRows = dataRows.filter(
-      (row) => !row || row.every((cell) => cell === null || cell === undefined || cell === ""),
-    )
+  //   // Verifica se todas as linhas estão vazias
+  //   const emptyRows = dataRows.filter(
+  //     (row) => !row || row.every((cell) => cell === null || cell === undefined || cell === ""),
+  //   )
 
-    if (emptyRows.length === dataRows.length) {
-      errors.push("Todas as linhas de dados estão vazias.")
-    }
+  //   if (emptyRows.length === dataRows.length) {
+  //     errors.push("Todas as linhas de dados estão vazias.")
+  //   }
 
-    dataRows.forEach((row, rowIndex) => {
-      for (let i = 0; i < headers.length; i++) {
-        if (row[i] === undefined || row[i] === null || row[i] === "") {
-          errors.push(`A célula da coluna "${headers[i]}" na linha ${rowIndex + 2} está vazia.`)
-        }
-      }
-    })
+  //   dataRows.forEach((row, rowIndex) => {
+  //     for (let i = 0; i < headers.length; i++) {
+  //       if (row[i] === undefined || row[i] === null || row[i] === "") {
+  //         errors.push(`A célula da coluna "${headers[i]}" na linha ${rowIndex + 2} está vazia.`)
+  //       }
+  //     }
+  //   })
 
 
-    dataRows.forEach((row, rowIndex) => {
-      const hasAnyValue = row.some((cell) => cell !== null && cell !== undefined && cell !== "")
-      const hasAnyBlank = row.some((cell) => cell === null || cell === undefined || cell === "")
+  //   dataRows.forEach((row, rowIndex) => {
+  //     const hasAnyValue = row.some((cell) => cell !== null && cell !== undefined && cell !== "")
+  //     const hasAnyBlank = row.some((cell) => cell === null || cell === undefined || cell === "")
 
-      if (hasAnyValue && hasAnyBlank) {
-        errors.push(`A linha ${rowIndex + 2} contém campos em branco. A planilha não pode conter valores em branco.`)
-      }
-    })
+  //     if (hasAnyValue && hasAnyBlank) {
+  //       errors.push(`A linha ${rowIndex + 2} contém campos em branco. A planilha não pode conter valores em branco.`)
+  //     }
+  //   })
 
-    return errors
-  }
+  //   return errors
+  // }
 
   const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
