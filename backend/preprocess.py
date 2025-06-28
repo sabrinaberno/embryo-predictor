@@ -82,6 +82,8 @@ def preprocess_planilha(df: pd.DataFrame) -> pd.DataFrame:
     # Seleciona somente colunas numéricas (útil para o modelo)
     numeric_columns = df.select_dtypes(include=[np.number])
 
+    
+
     return numeric_columns
 
 if __name__ == "__main__":

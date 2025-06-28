@@ -87,7 +87,7 @@ export default function EmbryoPredictorPage() {
       const workbook = XLSX.read(arrayBuffer, { type: "array" })
       const sheetName = workbook.SheetNames[0]
       const worksheet = workbook.Sheets[sheetName]
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as (string | number | null)[][]
+      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" }) as (string | number | null)[][]
 
       if (!jsonData || jsonData.length === 0) {
         setValidationErrors(["O arquivo está vazio."])
@@ -207,9 +207,19 @@ export default function EmbryoPredictorPage() {
   })
 
   if (!res.ok) {
-    const errorText = await res.text()
-    console.error("Erro da API:", errorText)
-    throw new Error("Erro ao enviar a planilha para a API")
+    let errorMessage = "Erro ao enviar a planilha para a API"
+
+    try {
+      const errorData = await res.json()
+      if (errorData?.detail) {
+        errorMessage = errorData.detail
+      }
+    } catch (e) {
+      const fallback = await res.text()
+      errorMessage = fallback || errorMessage
+    }
+
+    throw new Error(errorMessage)
   }
 
   const data = await res.json()
@@ -489,10 +499,13 @@ export default function EmbryoPredictorPage() {
                         localStorage.setItem("embryoResults", JSON.stringify(apiResults))
                         router.push("/results")
                       } catch (error) {
-                        console.error(error)
-                        alert("Erro ao processar os dados. Verifique sua planilha.")
-                      } finally {
-                        setIsProcessing(false)
+                      console.error(error)
+
+                        if (error instanceof Error) {
+                          setValidationErrors([error.message])
+                        } else {
+                          setValidationErrors(["Erro desconhecido ao processar a planilha."])
+                        }
                       }
                     }}
                   >
