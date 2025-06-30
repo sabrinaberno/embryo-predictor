@@ -2,6 +2,8 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from io import BytesIO
 import pandas as pd
+import os
+import uvicorn
 
 from .preprocess import preprocess_planilha
 from .predict_model import rodar_predicao
@@ -30,3 +32,7 @@ async def predict(file: UploadFile = File(...)):
 
     resposta = rodar_predicao(df_preprocessada)
     return resposta
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8001))
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=port, reload=True)

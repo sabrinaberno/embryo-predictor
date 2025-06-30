@@ -2,7 +2,9 @@ export async function uploadFileToPredictionAPI(file: File) {
   const formData = new FormData()
   formData.append("file", file)
 
-  const response = await fetch("http://localhost:8001/predict", {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001"
+
+  const response = await fetch(`${apiUrl}/predict`, {
     method: "POST",
     body: formData,
   })
@@ -12,5 +14,5 @@ export async function uploadFileToPredictionAPI(file: File) {
   }
 
   const data = await response.json()
-  return data.results // [{ embryoId, ploidyStatus, confidenceScore }]
+  return data.results
 }

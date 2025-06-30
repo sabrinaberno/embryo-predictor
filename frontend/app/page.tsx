@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Upload } from "lucide-react"
 import * as XLSX from "xlsx"
 import { useRouter } from "next/navigation"
+import { uploadFileToPredictionAPI } from "@/lib/api"
 
 export default function EmbryoPredictorPage() {
   const [dragActive, setDragActive] = useState(false)
@@ -197,40 +198,40 @@ export default function EmbryoPredictorPage() {
     }
   }
 
-  const sendToAPI = async (file: File): Promise<AnalysisResult[]> => {
-  const formData = new FormData()
-  formData.append("file", file)
+//   const sendToAPI = async (file: File): Promise<AnalysisResult[]> => {
+//   const formData = new FormData()
+//   formData.append("file", file)
 
-  const res = await fetch("http://localhost:8001/predict", {
-    method: "POST",
-    body: formData,
-  })
+//   const res = await fetch("http://localhost:8001/predict", {
+//     method: "POST",
+//     body: formData,
+//   })
 
-  if (!res.ok) {
-    let errorMessage = "Erro ao enviar a planilha para a API"
+//   if (!res.ok) {
+//     let errorMessage = "Erro ao enviar a planilha para a API"
 
-    try {
-      const errorData = await res.json()
-      if (errorData?.detail) {
-        errorMessage = errorData.detail
-      }
-    } catch (e) {
-      const fallback = await res.text()
-      errorMessage = fallback || errorMessage
-    }
+//     try {
+//       const errorData = await res.json()
+//       if (errorData?.detail) {
+//         errorMessage = errorData.detail
+//       }
+//     } catch (e) {
+//       const fallback = await res.text()
+//       errorMessage = fallback || errorMessage
+//     }
 
-    throw new Error(errorMessage)
-  }
+//     throw new Error(errorMessage)
+//   }
 
-  const data = await res.json()
+//   const data = await res.json()
 
-  if (!Array.isArray(data.results)) {
-    console.error("Formato de resposta inesperado:", data)
-    throw new Error("A API não retornou uma lista de resultados.")
-  }
+//   if (!Array.isArray(data.results)) {
+//     console.error("Formato de resposta inesperado:", data)
+//     throw new Error("A API não retornou uma lista de resultados.")
+//   }
 
-  return data.results as AnalysisResult[]
-}
+//   return data.results as AnalysisResult[]
+// }
 
 
 
@@ -495,7 +496,7 @@ export default function EmbryoPredictorPage() {
                       if (!uploadedFile) return
                       setIsProcessing(true)
                       try {
-                        const apiResults = await sendToAPI(uploadedFile)
+                        const apiResults = await await uploadFileToPredictionAPI(uploadedFile)
                         localStorage.setItem("embryoResults", JSON.stringify(apiResults))
                         router.push("/results")
                       } catch (error) {
