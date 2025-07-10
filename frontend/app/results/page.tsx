@@ -38,7 +38,7 @@ export default function ResultsPage() {
 
   const handleExportResults = () => {
       const ws = XLSX.utils.json_to_sheet(results.map((r) => ({
-        "Embryo ID": r.embryoId,
+        "Número do Embrião": r.embryoId,
         "Previsão de Ploidia": r.ploidyStatus,
         "Probibilidade de Euploidia (%)": r.confidenceScore,
       })))
@@ -121,7 +121,7 @@ export default function ResultsPage() {
                   <table className="w-full">
                     <thead className="bg-gray-50 border-b">
                       <tr>
-                        <th className="text-left py-4 px-6 font-semibold text-gray-900">Embryo ID</th>
+                        <th className="text-left py-4 px-6 font-semibold text-gray-900">Número do Embrião</th>
                         <th className="text-left py-4 px-6 font-semibold text-gray-900">Previsão de Ploidia</th>
                         <th className="text-left py-4 px-6 font-semibold text-gray-900">Probabilidade de Euploidia (%):</th>
                       </tr>
@@ -129,7 +129,7 @@ export default function ResultsPage() {
                     <tbody>
                       {results.map((result, index) => (
                         <tr key={result.embryoId} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                          <td className="py-4 px-6 font-medium text-gray-900">Embryo {result.embryoId}</td>
+                          <td className="py-4 px-6 font-medium text-gray-900">Embrião {result.embryoId}</td>
                           <td className="py-4 px-6">
                             <span
                               className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
